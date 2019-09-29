@@ -76,9 +76,67 @@ void readGraphInput()
 
 void createMapping()
 {
-	fout.open(output_name);
+	vector<string> v;
+	v.reserve(n*n*n_*n_ + n + n_ + n*n_*n_);
+	//At least one mapping
+	for(int i=0;i<n;++i)
+	{
+		string s;
+		for(int j=1;j<=n_;++j)
+			s += to_string(j+i*n_)+" ";
+		s+="0\n";
+		v.push_back(s);
+	}
 
-	
+	for(int i=1;i<=n_;++i)
+	{
+		for(int j=0;j<n-1;++j)
+		{
+			for(int k=j+1;k<n;++k)
+				v.push_back("-" + to_string(i+j*n_) + " -" + to_string(i+k*n_) + " 0\n");
+		}
+	}
+
+	//One-One function clauses
+	for(int i=0;i<n;++i)
+	{
+		for(int j=1;j<n_;++j)
+		{
+			for(int k=j+1;k<=n_;++k)
+				v.push_back("-" + to_string(j+i*n_) + " -" + to_string(k+i*n_) + " 0\n");
+		}
+	}
+
+	//Graph mapping clauses
+	for(int i=1;i<n_;++i)
+	{
+		for(int j=i+1;j<=n_;++j)
+		{
+			for(int k=0;k<n;++k)
+			{
+				for(int l=0;l<n;++l)
+				{
+					if(k==l)
+						continue;
+					// cout<<i<<" "<<j<<" "<<k+1<<" "<<l+1<<"\n";
+					// int x = k*n_ + i;
+					// int y = l*n_ + j;
+					bool a = g[k+1][l+1], b = g[l+1][k+1];
+					bool x = g_[i][j], y = g_[j][i];
+					// if(i==1&&k==1&&j==2&&l==0)
+						// cout<<a<<b<<x<<y<<" "<<(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))<<"\n";
+					if(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))
+						v.push_back("-" + to_string(k*n_ + i) + " -" + to_string(l*n_ + j) + " 0\n");
+
+				}
+			}
+		}
+	}
+
+	fout.open(output_name);
+	fout<<"p cnf "<< n*n_ << " "<< v.size() <<"\n";
+	for(int i=0;i<v.size();++i)
+		fout<<v[i];
 
 	fout.close();
 }
@@ -87,6 +145,16 @@ void printMapping()
 {
 	fin.open(input_name);
 	fout.open(output_name);
+
+	string s;
+	fin>>s;
+	if(s[0]=='U')
+	{
+		fout<<"0";
+		fin.close();
+		fout.close();
+		return;
+	}
 
 	while(true)
 	{
@@ -124,7 +192,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		input_name = c_string(s+".satinput");
+		input_name = c_string(s+".satoutput");
 		output_name = c_string(s+".mapping");
 		readParam();
 		printMapping();
