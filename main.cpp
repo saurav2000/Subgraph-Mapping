@@ -9,6 +9,7 @@ ofstream fout;
 int n, n_ ;
 char *input_name, *output_name, *param_name;
 bool **g, **g_;
+vector<string> v;
 
 void readParam()
 {
@@ -72,12 +73,13 @@ void readGraphInput()
 		g[tg[i]][tg[i+1]] = true;
 	for(int i=0;i<tg_.size();i+=2)
 		g_[tg_[i]][tg_[i+1]] = true;
+
+	cout<<"Alloc done\n";
 }
 
 void createMapping()
 {
-	vector<string> v;
-	v.reserve(n*n*n_*n_ + n + n_ + n*n_*n_);
+	// v.reserve(n*n*n_*n_ + n + n_ + n*n_*n_);
 	//At least one mapping
 	for(int i=0;i<n;++i)
 	{
