@@ -90,14 +90,14 @@ void readGraphInput()
 	}
 	// cout<<"Alloc done\n";
 	long long clauses = n*n_ + n + n_*(n*(n-1))/2 + n*(n_*(n_-1))/2 + n*(n-1)*n_*n_/2;
-	fout.open(output_name);
-	fout<<"p cnf "<< n*n_ << " "<< clauses <<"\n";
+	// fout.open(output_name);
+	printf("p cnf %d %d\n", n*n_, clauses);//cout<<"p cnf "<< n*n_ << " "<< clauses <<"\n";
 	for(int i=1;i<=n;++i)
 	{
 		for(int j=1;j<=n_;++j)
 		{
 			if(cnt_in_g[i]>cnt_in_g_[j] || cnt_out_g[i]>cnt_out_g_[j])
-				fout<<("-"+to_string(j+(i-1)*n_)+" 0\n");
+				printf("-%d 0\n", (j+(i-1)*n_));// cout<<("-"+to_string(j+(i-1)*n_)+" 0\n");
 		}
 	}
 }
@@ -112,7 +112,7 @@ void createMapping()
 		for(int j=1;j<=n_;++j)
 			s += to_string(j+i*n_)+" ";
 		s+="0\n";
-		fout<<(s);
+		printf(s.c_str());// cout<<(s);
 	}
 
 	for(int i=1;i<=n_;++i)
@@ -120,7 +120,7 @@ void createMapping()
 		for(int j=0;j<n-1;++j)
 		{
 			for(int k=j+1;k<n;++k)
-				fout<<("-" + to_string(i+j*n_) + " -" + to_string(i+k*n_) + " 0\n");
+				printf("-%d -%d 0\n", (i+j*n_), (i+k*n_));// cout<<("-" + to_string(i+j*n_) + " -" + to_string(i+k*n_) + " 0\n");
 		}
 	}
 
@@ -130,7 +130,7 @@ void createMapping()
 		for(int j=1;j<n_;++j)
 		{
 			for(int k=j+1;k<=n_;++k)
-				fout<<("-" + to_string(j+i*n_) + " -" + to_string(k+i*n_) + " 0\n");
+				printf("-%d -%d 0\n", (j+i*n_), (k+i*n_));// cout<<("-" + to_string(j+i*n_) + " -" + to_string(k+i*n_) + " 0\n");
 		}
 	}
 
@@ -153,7 +153,7 @@ void createMapping()
 					// if(i==1&&k==1&&j==2&&l==0)
 						// cout<<a<<b<<x<<y<<" "<<(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))<<"\n";
 					if(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))
-						fout<<("-" + to_string(k*n_ + i) + " -" + to_string(l*n_ + j) + " 0\n");
+						printf("-%d -%d 0\n", (k*n_ + i), (j+l*n_));// cout<<("-" + to_string(k*n_ + i) + " -" + to_string(l*n_ + j) + " 0\n");
 
 				}
 			}
@@ -165,7 +165,7 @@ void createMapping()
 	// for(int i=0;i<v.size();++i)
 	// 	fout<<v[i];
 
-	fout.close();
+	// fout.close();
 }
 
 void printMapping()
@@ -208,6 +208,8 @@ char* c_string(string s)
 
 int main(int argc, char** argv)
 {
+	// ios::sync_with_stdio(0);
+	// cout.tie(0);
 	auto start = high_resolution_clock::now();
 	string s(argv[2]);
 	param_name = c_string(s+".param");
@@ -227,6 +229,6 @@ int main(int argc, char** argv)
 	}
 	auto end = high_resolution_clock::now();
 	auto time_span = duration_cast<duration<double>>(end - start);
-	cout<<time_span.count()<<"\n";
+	cerr<<time_span.count()<<"\n";
 	return 0;
 }
