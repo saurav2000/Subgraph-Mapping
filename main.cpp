@@ -1,11 +1,12 @@
 #include <iostream>
-#include <fstream>
+#include <stdio.h>
 #include <string>
 #include <vector>
+#include <chrono>
 using namespace std;
+using namespace std::chrono;
 
-ifstream fin;
-ofstream fout;
+FILE *fileptr, *fileptr2;
 int n, n_ ;
 char *input_name, *output_name, *param_name;
 bool **g, **g_;
@@ -13,16 +14,16 @@ vector<string> v;
 
 void readParam()
 {
-	fin.open(param_name);
-	fin>>n>>n_;
-	fin.close();
+	fileptr = fopen(param_name, "r");
+	fscanf(fileptr, "%d %d", &n, &n_);
+	fclose(fileptr);
 }
 
 void writeParam()
 {
-	fout.open(param_name);
-	fout<<n<<" "<<n_;
-	fout.close();
+	fileptr = fopen(param_name, "w");
+	fprintf(fileptr, "%d %d", n, n_);
+	fclose(fileptr);
 }
 
 void readGraphInput()
@@ -32,9 +33,12 @@ void readGraphInput()
 	int max1 = 0, max2 = 0;
 	bool flag = true;
 
-	fin.open(input_name);
-	while(fin>>x>>y)
+	fileptr = fopen(input_name, "r");
+	while(true)
 	{
+		int chk = fscanf(fileptr, "%d %d", &x, &y);
+		if(chk==EOF)
+			break;
 		if(x==0&&y==0)
 		{
 			flag = false;
@@ -53,14 +57,19 @@ void readGraphInput()
 			tg.push_back(y);
 			max1 = max(max(max1, x), y);
 		}
-		if(fin.eof())
-			break;
+		// if(fin.eof())
+		// 	break;
 	}
-	fin.close();
+	fclose(fileptr);
 
 	n = max1;
 	n_ = max2;
 	writeParam();
+
+	vector<int> cnt_in_g(n+1, 0);
+	vector<int> cnt_out_g(n+1, 0);
+	vector<int> cnt_in_g_(n_+1, 0);
+	vector<int> cnt_out_g_(n_+1, 0);
 
 	g = new bool*[n+1];
 	g_ = new bool*[n_+1];
@@ -70,11 +79,27 @@ void readGraphInput()
 		g_[i] = new bool[n_+1]();
 
 	for(int i=0;i<tg.size();i+=2)
+	{
 		g[tg[i]][tg[i+1]] = true;
+		cnt_out_g[tg[i]]++;
+		cnt_in_g[tg[i+1]]++;
+	}
 	for(int i=0;i<tg_.size();i+=2)
+	{
 		g_[tg_[i]][tg_[i+1]] = true;
+		cnt_out_g_[tg_[i]]++;
+		cnt_in_g_[tg_[i+1]]++;
+	}
+	// cout<<"Alloc done\n";
 
-	cout<<"Alloc done\n";
+	for(int i=1;i<=n;++i)
+	{
+		for(int j=1;j<=n_;++j)
+		{
+			if(cnt_in_g[i]>cnt_in_g_[j] || cnt_out_g[i]>cnt_out_g_[j])
+				v.push_back("-"+to_string(j+(i-1)*n_)+" 0\n");
+		}
+	}
 }
 
 void createMapping()
@@ -135,42 +160,43 @@ void createMapping()
 		}
 	}
 
-	fout.open(output_name);
-	fout<<"p cnf "<< n*n_ << " "<< v.size() <<"\n";
+	fileptr = fopen(output_name, "w");
+	fprintf(fileptr, "%s %d %d\n", "p cnf", n*n_, (int)v.size());
+	// fout<<"p cnf "<< n*n_ << " "<< v.size() <<"\n";
 	for(int i=0;i<v.size();++i)
-		fout<<v[i];
+		fprintf(fileptr, "%s", v[i].c_str());
 
-	fout.close();
+	fclose(fileptr);
 }
 
 void printMapping()
 {
-	fin.open(input_name);
-	fout.open(output_name);
+	fileptr = fopen(input_name, "r");
+	fileptr2 = fopen(output_name, "w");
 
-	string s;
-	fin>>s;
+	char *s;
+	fscanf(fileptr, "%s", s);
 	if(s[0]=='U')
 	{
-		fout<<"0";
-		fin.close();
-		fout.close();
+		fprintf(fileptr2, "%s\n","0");
+		fclose(fileptr);
+		fclose(fileptr2);
 		return;
 	}
 
 	while(true)
 	{
 		int x;
-		fin>>x;
+		fscanf(fileptr, "%d", &x);
 		if(!x)
 			break;
 		--x;
 		if(x>=0)
-			fout<<(x/n_ + 1)<<" "<<(x%n_ + 1)<<"\n";
+			fprintf(stderr, "%d %d\n", (x/n_ + 1), (x%n_ + 1));
 	}
 
-	fin.close();
-	fout.close();
+	fclose(fileptr);
+	fclose(fileptr2);
 }
 
 char* c_string(string s)
@@ -183,6 +209,7 @@ char* c_string(string s)
 
 int main(int argc, char** argv)
 {
+	auto start = high_resolution_clock::now();
 	string s(argv[2]);
 	param_name = c_string(s+".param");
 	if(argv[1][0]=='0')
@@ -199,6 +226,8 @@ int main(int argc, char** argv)
 		readParam();
 		printMapping();
 	}
-
+	auto end = high_resolution_clock::now();
+	auto time_span = duration_cast<duration<double>>(end - start);
+	cout<<time_span.count()<<"\n";
 	return 0;
 }
