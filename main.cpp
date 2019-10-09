@@ -89,13 +89,15 @@ void readGraphInput()
 		cnt_in_g_[tg_[i+1]]++;
 	}
 	// cout<<"Alloc done\n";
-
+	long long clauses = n*n_ + n + n_*(n*(n-1))/2 + n*(n_*(n_-1))/2 + n*(n-1)*n_*n_/2;
+	fout.open(output_name);
+	fout<<"p cnf "<< n*n_ << " "<< clauses <<"\n";
 	for(int i=1;i<=n;++i)
 	{
 		for(int j=1;j<=n_;++j)
 		{
 			if(cnt_in_g[i]>cnt_in_g_[j] || cnt_out_g[i]>cnt_out_g_[j])
-				v.push_back("-"+to_string(j+(i-1)*n_)+" 0\n");
+				fout<<("-"+to_string(j+(i-1)*n_)+" 0\n");
 		}
 	}
 }
@@ -110,7 +112,7 @@ void createMapping()
 		for(int j=1;j<=n_;++j)
 			s += to_string(j+i*n_)+" ";
 		s+="0\n";
-		v.push_back(s);
+		fout<<(s);
 	}
 
 	for(int i=1;i<=n_;++i)
@@ -118,7 +120,7 @@ void createMapping()
 		for(int j=0;j<n-1;++j)
 		{
 			for(int k=j+1;k<n;++k)
-				v.push_back("-" + to_string(i+j*n_) + " -" + to_string(i+k*n_) + " 0\n");
+				fout<<("-" + to_string(i+j*n_) + " -" + to_string(i+k*n_) + " 0\n");
 		}
 	}
 
@@ -128,7 +130,7 @@ void createMapping()
 		for(int j=1;j<n_;++j)
 		{
 			for(int k=j+1;k<=n_;++k)
-				v.push_back("-" + to_string(j+i*n_) + " -" + to_string(k+i*n_) + " 0\n");
+				fout<<("-" + to_string(j+i*n_) + " -" + to_string(k+i*n_) + " 0\n");
 		}
 	}
 
@@ -151,17 +153,17 @@ void createMapping()
 					// if(i==1&&k==1&&j==2&&l==0)
 						// cout<<a<<b<<x<<y<<" "<<(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))<<"\n";
 					if(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))
-						v.push_back("-" + to_string(k*n_ + i) + " -" + to_string(l*n_ + j) + " 0\n");
+						fout<<("-" + to_string(k*n_ + i) + " -" + to_string(l*n_ + j) + " 0\n");
 
 				}
 			}
 		}
 	}
 
-	fout.open(output_name);
-	fout<<"p cnf "<< n*n_ << " "<< v.size() <<"\n";
-	for(int i=0;i<v.size();++i)
-		fout<<v[i];
+	
+	// fout<<"p cnf "<< n*n_ << " "<< 100 <<"\n";
+	// for(int i=0;i<v.size();++i)
+	// 	fout<<v[i];
 
 	fout.close();
 }
