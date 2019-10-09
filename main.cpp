@@ -1,12 +1,13 @@
 #include <iostream>
-#include <stdio.h>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <chrono>
 using namespace std;
 using namespace std::chrono;
 
-FILE *fileptr, *fileptr2;
+ifstream fin;
+ofstream fout;
 int n, n_ ;
 char *input_name, *output_name, *param_name;
 bool **g, **g_;
@@ -14,16 +15,16 @@ vector<string> v;
 
 void readParam()
 {
-	fileptr = fopen(param_name, "r");
-	fscanf(fileptr, "%d %d", &n, &n_);
-	fclose(fileptr);
+	fin.open(param_name);
+	fin>>n>>n_;
+	fin.close();
 }
 
 void writeParam()
 {
-	fileptr = fopen(param_name, "w");
-	fprintf(fileptr, "%d %d", n, n_);
-	fclose(fileptr);
+	fout.open(param_name);
+	fout<<n<<" "<<n_;
+	fout.close();
 }
 
 void readGraphInput()
@@ -33,12 +34,9 @@ void readGraphInput()
 	int max1 = 0, max2 = 0;
 	bool flag = true;
 
-	fileptr = fopen(input_name, "r");
-	while(true)
+	fin.open(input_name);
+	while(fin>>x>>y)
 	{
-		int chk = fscanf(fileptr, "%d %d", &x, &y);
-		if(chk==EOF)
-			break;
 		if(x==0&&y==0)
 		{
 			flag = false;
@@ -57,10 +55,10 @@ void readGraphInput()
 			tg.push_back(y);
 			max1 = max(max(max1, x), y);
 		}
-		// if(fin.eof())
-		// 	break;
+		if(fin.eof())
+			break;
 	}
-	fclose(fileptr);
+	fin.close();
 
 	n = max1;
 	n_ = max2;
@@ -160,43 +158,42 @@ void createMapping()
 		}
 	}
 
-	fileptr = fopen(output_name, "w");
-	fprintf(fileptr, "%s %d %d\n", "p cnf", n*n_, (int)v.size());
-	// fout<<"p cnf "<< n*n_ << " "<< v.size() <<"\n";
+	fout.open(output_name);
+	fout<<"p cnf "<< n*n_ << " "<< v.size() <<"\n";
 	for(int i=0;i<v.size();++i)
-		fprintf(fileptr, "%s", v[i].c_str());
+		fout<<v[i];
 
-	fclose(fileptr);
+	fout.close();
 }
 
 void printMapping()
 {
-	fileptr = fopen(input_name, "r");
-	fileptr2 = fopen(output_name, "w");
+	fin.open(input_name);
+	fout.open(output_name);
 
-	char *s;
-	fscanf(fileptr, "%s", s);
+	string s;
+	fin>>s;
 	if(s[0]=='U')
 	{
-		fprintf(fileptr2, "%s\n","0");
-		fclose(fileptr);
-		fclose(fileptr2);
+		fout<<"0";
+		fin.close();
+		fout.close();
 		return;
 	}
 
 	while(true)
 	{
 		int x;
-		fscanf(fileptr, "%d", &x);
+		fin>>x;
 		if(!x)
 			break;
 		--x;
 		if(x>=0)
-			fprintf(stderr, "%d %d\n", (x/n_ + 1), (x%n_ + 1));
+			fout<<(x/n_ + 1)<<" "<<(x%n_ + 1)<<"\n";
 	}
 
-	fclose(fileptr);
-	fclose(fileptr2);
+	fin.close();
+	fout.close();
 }
 
 char* c_string(string s)
