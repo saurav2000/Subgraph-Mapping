@@ -1,2 +1,2 @@
 #!/bin/bash
-./satrockers 0 $1
+./satrockers 0 $1 > $1.satinput
