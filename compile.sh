@@ -1,2 +1,2 @@
 #!/bin/bash
-g++ -O3 main.cpp -o satrockers
+g++ -w -O3 main.cpp -o satrockers
