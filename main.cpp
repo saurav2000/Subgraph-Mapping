@@ -12,6 +12,7 @@ int n, n_ ;
 char *input_name, *output_name, *param_name;
 bool **g, **g_;
 vector<string> v;
+long long clause_cnt;
 
 void readParam()
 {
@@ -105,9 +106,8 @@ void readGraphInput()
 		exit(0);
 	}
 
-	long long clauses = n*n_ + n + n_*(n*(n-1))/2 + n*(n_*(n_-1))/2 + n*(n-1)*n_*n_/2;
+	// long long clauses = n*n_ + n + n_*(n*(n-1))/2 + n*(n_*(n_-1))/2 + n*(n-1)*n_*n_/2;
 	// fout.open(output_name);
-	printf("p cnf %d %d\n", n*n_, clauses);//cout<<"p cnf "<< n*n_ << " "<< clauses <<"\n";
 
 	for(int i=1;i<=n;++i)
 	{
@@ -122,10 +122,16 @@ void readGraphInput()
 			}
 
 			else if(cnt_in_g[i]>cnt_in_g_[j] || cnt_out_g[i]>cnt_out_g_[j])
+			{
 				printf("-%d 0\n", (j+(i-1)*n_));// cout<<("-"+to_string(j+(i-1)*n_)+" 0\n");
+				++clause_cnt;
+			}
 		}
 		if(flag)
+		{
 			printf("%s0\n", s.c_str());
+			++clause_cnt;
+		}
 	}
 }
 
@@ -161,6 +167,11 @@ void createMapping()
 		}
 	}
 
+	long long a = n;
+	long long b = n_;
+
+	clause_cnt+= (a + (a*b*(b-1))/2 + (b*a*(a-1))/2);
+
 	//Graph mapping clauses
 	for(int i=1;i<n_;++i)
 	{
@@ -180,13 +191,16 @@ void createMapping()
 					// if(i==1&&k==1&&j==2&&l==0)
 						// cout<<a<<b<<x<<y<<" "<<(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))<<"\n";
 					if(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))
+					{
 						printf("-%d -%d 0\n", (k*n_ + i), (j+l*n_));// cout<<("-" + to_string(k*n_ + i) + " -" + to_string(l*n_ + j) + " 0\n");
-
+						++clause_cnt;
+					}
 				}
 			}
 		}
 	}
 
+	printf("p cnf %d %d\n", n*n_, clause_cnt);//cout<<"p cnf "<< n*n_ << " "<< clauses <<"\n";
 	
 	// fout<<"p cnf "<< n*n_ << " "<< 100 <<"\n";
 	// for(int i=0;i<v.size();++i)
