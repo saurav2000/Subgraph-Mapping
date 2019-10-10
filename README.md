@@ -1,12 +1,12 @@
 # Subgraph-Mapping
 ## Statement
- There are two directed graphs G and G' without any self edges. This finds a one-one mapping
- M from nodes of G to G', such that there is an edge from v1 to v2 in G iff there is an edge from M(v1)
- to M(v2) in G'
+> There are two directed graphs G and G' without any self edges. This finds a one-one mapping
+> M from nodes of G to G', such that there is an edge from v1 to v2 in G iff there is an edge from M(v1)
+> to M(v2) in G'
 
 ## Execution
- This is done by converting the problem to a Boolean satisfiability problem which is in turn
- solved using [MiniSAT a complete SAT solver](minisat.se/MiniSat.html)
+> This is done by converting the problem to a Boolean satisfiability problem which is in turn
+> solved using [MiniSAT a complete SAT solver](minisat.se/MiniSat.html)
 
 ## Running
 - generate.py generates a random graph with input of the no. of nodes and edges 
