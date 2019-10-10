@@ -89,16 +89,43 @@ void readGraphInput()
 		cnt_in_g_[tg_[i+1]]++;
 	}
 	// cout<<"Alloc done\n";
+	int a = 0, b = 0;
+	for(int i=1, j=1;i<=n || j<=n_;++i, ++j)
+	{
+		if(i<=n && cnt_in_g[i]==0 && cnt_out_g[i]==0)
+			++a;
+		if(j<=n_ && cnt_in_g_[j]==0 && cnt_out_g_[j]==0)
+			++b;
+	}
+
+	if(a>b)
+	{
+		printf("p cnf 0 1\n");
+		printf("0\n");
+		exit(0);
+	}
+
 	long long clauses = n*n_ + n + n_*(n*(n-1))/2 + n*(n_*(n_-1))/2 + n*(n-1)*n_*n_/2;
 	// fout.open(output_name);
 	printf("p cnf %d %d\n", n*n_, clauses);//cout<<"p cnf "<< n*n_ << " "<< clauses <<"\n";
+
 	for(int i=1;i<=n;++i)
 	{
+		bool flag = cnt_in_g[i]==0 && cnt_out_g[i]==0;
+		string s = "";
 		for(int j=1;j<=n_;++j)
 		{
-			if(cnt_in_g[i]>cnt_in_g_[j] || cnt_out_g[i]>cnt_out_g_[j])
+			if(flag)
+			{
+				if(cnt_in_g_[j]==0&&cnt_out_g_[j]==0)
+					s+= (to_string((j+(i-1)*n_)) + " ");
+			}
+
+			else if(cnt_in_g[i]>cnt_in_g_[j] || cnt_out_g[i]>cnt_out_g_[j])
 				printf("-%d 0\n", (j+(i-1)*n_));// cout<<("-"+to_string(j+(i-1)*n_)+" 0\n");
 		}
+		if(flag)
+			printf("%s0\n", s.c_str());
 	}
 }
 
