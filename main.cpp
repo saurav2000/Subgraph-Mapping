@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <map>
 using namespace std;
 using namespace std::chrono;
 
@@ -12,6 +13,7 @@ int n, n_ ;
 char *input_name, *output_name, *param_name;
 bool **g, **g_;
 vector<string> v;
+map<int, bool> mem_red;
 long long clause_cnt;
 
 void readParam()
@@ -123,6 +125,7 @@ void readGraphInput()
 
 			else if(cnt_in_g[i]>cnt_in_g_[j] || cnt_out_g[i]>cnt_out_g_[j])
 			{
+				mem_red[j+(i-1)*n_] = true;
 				printf("-%d 0\n", (j+(i-1)*n_));// cout<<("-"+to_string(j+(i-1)*n_)+" 0\n");
 				++clause_cnt;
 			}
@@ -153,7 +156,12 @@ void createMapping()
 		for(int j=0;j<n-1;++j)
 		{
 			for(int k=j+1;k<n;++k)
-				printf("-%d -%d 0\n", (i+j*n_), (i+k*n_));// cout<<("-" + to_string(i+j*n_) + " -" + to_string(i+k*n_) + " 0\n");
+			{
+				if(! (mem_red[i+j*n_] || mem_red[i+k*n_]) )
+					printf("-%d -%d 0\n", (i+j*n_), (i+k*n_));// cout<<("-" + to_string(i+j*n_) + " -" + to_string(i+k*n_) + " 0\n");
+				else
+					--clause_cnt;
+			}
 		}
 	}
 
@@ -163,7 +171,12 @@ void createMapping()
 		for(int j=1;j<n_;++j)
 		{
 			for(int k=j+1;k<=n_;++k)
-				printf("-%d -%d 0\n", (j+i*n_), (k+i*n_));// cout<<("-" + to_string(j+i*n_) + " -" + to_string(k+i*n_) + " 0\n");
+			{
+				if(! (mem_red[j+i*n_] || mem_red[k+i*n_]) )
+					printf("-%d -%d 0\n", (j+i*n_), (k+i*n_));// cout<<("-" + to_string(j+i*n_) + " -" + to_string(k+i*n_) + " 0\n");
+				else
+					--clause_cnt;
+			}
 		}
 	}
 
@@ -192,8 +205,11 @@ void createMapping()
 						// cout<<a<<b<<x<<y<<" "<<(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))<<"\n";
 					if(! (((a&&x) || (!a&&!x)) && ((b&&y) || (!b&&!y))))
 					{
-						printf("-%d -%d 0\n", (k*n_ + i), (j+l*n_));// cout<<("-" + to_string(k*n_ + i) + " -" + to_string(l*n_ + j) + " 0\n");
-						++clause_cnt;
+						if(!(mem_red[k*n_ + i] || mem_red[j+l*n_]))
+						{
+							printf("-%d -%d 0\n", (k*n_ + i), (j+l*n_));// cout<<("-" + to_string(k*n_ + i) + " -" + to_string(l*n_ + j) + " 0\n");
+							++clause_cnt;
+						}
 					}
 				}
 			}
